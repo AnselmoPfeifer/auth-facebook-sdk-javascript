@@ -1,0 +1,100 @@
+<html>
+<head>
+    <title>Auth Facebook</title>
+    <script type="text/javascript" src="js/jquery-3.1.1.min.js"></script>
+
+    <script type="text/javascript">
+        function callbackMudancaStatus(response) {
+            // Status
+            if (response.status === 'connected'){
+                // Logado
+                $('#login').hide();
+                $('#login').remove();
+                testAPI();
+
+                // Nao autorizado
+            }else if(response.status === 'not_authorized'){
+                $('#status').append('<p id="login">Por favor faça login no aplicativo!</p>');
+//                $('#logout').remove;
+
+            }else{
+                // Nao logado
+//                $('#logout').remove;
+                $('#status').append('<p id="login">Faça login no facebook</p>');
+                $('#login').show();
+            }
+        };
+
+        // Inicializando Api Facebook
+        window.fbAsyncInit = function() {
+            FB.init({
+                appId      : 'ID_APP_FACEBOOK',
+                xfbml      : true,
+                cookie     : true,
+                version    : 'v2.8' +
+                ''
+            });
+
+            FB.getLoginStatus(function(response) {
+                callbackMudancaStatus(response);
+
+            });
+        };
+
+        (function(d, s, id){
+            var js, fjs = d.getElementsByTagName(s)[0];
+            if (d.getElementById(id)) {return;}
+            js = d.createElement(s); js.id = id;
+            js.src = "//connect.facebook.net/en_US/sdk.js";
+            fjs.parentNode.insertBefore(js, fjs);
+        }(document, 'script', 'facebook-jssdk'));
+
+        // Test de Api
+        function testAPI() {
+            FB.api('/me?fields=name,email,gender,birthday,link,hometown,picture', function(response) {
+                $('#status').html('<a href="javascript:void(0);" onclick="logOut();" id="logout">Sair</a>');
+                $('#status').append('<p>Nome: ' + response.name + '</p>');
+                $('#status').append('<p>Email: ' + response.email + '</p>');
+                $('#status').append('<p>ID: ' + response.id + '</p>');
+                $('#status').append('<p>Sexo: ' + response.gender + '</p>');
+                $('#status').append('<p>Data Nascimento: ' + response.birthday + '</p>');
+                $('#status').append('<p>Link: ' + response.link + '</p>');
+                $('#status').append('<p>Localidade: ' + response.hometown.name + '</p>');
+                $("#status").append('<img src="' + response.picture.data.url + '" width="150" height="150"/>');
+
+                console.log(response);
+            })
+
+        };
+        
+        // Logout
+        function logOut() {
+            FB.logout(function (response) {
+                callbackMudancaStatus(response);
+                $('#status').html('<p>Logou efetuado com sucesso!</p>');
+                $('#status').append('<a href="javascript:void(0);" onclick="login();" id="logar">Logar novamente</a>');
+
+            })
+            
+        };
+        
+        // Login
+        function login() {
+            FB.login(function (response) {
+                callbackMudancaStatus(response);
+            })
+            
+        };
+    </script>
+</head>
+<body>
+<div id="login">
+    <a href="javascript:void(0)" onclick="login();" id="logar">Efetuar Login</a>
+</div>
+
+<div id="status">
+
+</div>
+
+</body>
+</html>
